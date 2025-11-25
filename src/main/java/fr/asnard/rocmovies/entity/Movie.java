@@ -1,20 +1,28 @@
 package fr.asnard.rocmovies.entity;
 
+import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
+import javax.annotation.processing.Generated;
+
+@Entity
+@Table(name = "movies")
 public class Movie {
 
     public Movie(int idMovie, String title, MovieStyles style, int productionYear, String reference) {
-        this.idMovie = idMovie;
+        this.id = idMovie;
         this.title = title;
         this.style = style;
         this.productionYear = productionYear;
         this.reference = reference;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "movieId")
     @NotNull(message = "idMovie cannot be null")
-    private Integer idMovie;
+    private Long id;
 
     @NotBlank(message = "Title cannot be blank")
     @Size(max = 100, message = "Title must be at most 100 characters long")
