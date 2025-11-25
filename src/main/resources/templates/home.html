@@ -1,0 +1,130 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Roc Movies - Accueil</title>
+    <link rel="stylesheet" href="/css/stylesheet.css" th:href="@{/css/stylesheet.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<section class="search-inputs">
+    <label>
+        Rechercher :
+        <input type="text" id="search" name="search" placeholder="Titre, référence, ...">
+    </label>
+    <label>
+        Trier par :
+        <select id="style" th:field="*{styles}">
+            <option value="" th:text="'Tous'"></option>
+            <option th:each="style : ${styles}" th:value="${style}" th:text="${#strings.capitalize(#strings.toLowerCase(style))}"></option>
+        </select>
+    </label>
+    <button id="create-movie" style="position: absolute;right: 0;margin-right: 20px">Créer un film</button>
+</section>
+
+<main class="movie-grid">
+    <div class="movie" th:each="movie : ${movies}" th:attr="data-style=${movie.getStyle()}">
+        <h2 th:text="${movie.getTitle()}">Titre</h2>
+        <p th:text="${movie.getReference()}">Reference</p>
+        <p th:text="${movie.getProductionYear()}">Année</p>
+        <p th:text="${#strings.capitalize(#strings.toLowerCase(movie.getStyle()))}">Genre</p>
+        <a th:href="@{/{id}(id=${movie.getIdMovie()})}" target="_blank">Voir les détails</a>
+    </div>
+</main>
+
+<div id="movie-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <br>
+        <label>Titre : <input id="title"/></label>
+        <br>
+        <label>Année : <input id="productionYear"/></label>
+        <br>
+        <label>Reference : <input id="reference" pattern="^[A-Z]{2,3}-\d{6}$" placeholder="###-######"/></label>
+        <br>
+        <label>
+            Style :
+            <select id="style-modal" th:field="*{styles}">
+                <option th:each="style : ${styles}" th:value="${style}" th:text="${#strings.capitalize(#strings.toLowerCase(style))}"></option>
+            </select>
+        </label>
+        <br>
+        <button id="save-movie">Enregistrer</button>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
+
+<script>
+    // Modal logics
+    const modal = document.getElementById("movie-modal");
+
+    document.getElementById("create-movie").onclick = function() {
+        modal.style.display = "block";
+    }
+
+    document.getElementsByClassName("close")[0].onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    document.getElementById("save-movie").onclick = function() {
+        const title = document.getElementById("title").value;
+        const productionYear = document.getElementById("productionYear").value;
+        const reference = document.getElementById("reference").value;
+        const style = document.getElementById("style-modal").value;
+
+        const movieData = {
+            title,
+            productionYear,
+            reference,
+            style
+        };
+        console.log(movieData)
+        fetch('/rocmovies/movies', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(movieData)
+        })
+        .then(response => {
+            console.log(response)
+            if (response.ok) {
+                alert('Film créé avec succès.');
+                location.reload();
+            } else {
+                alert('Erreur lors de la création du film.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Erreur lors de la création du film.');
+        });
+    };
+
+    // Search logics
+    const select = document.getElementById('style');
+    const searchInput = document.getElementById('search');
+    const movies = Array.from(document.querySelectorAll('[data-style]'));
+
+    function filterMovies() {
+        const selected = select.value;
+        const searchTerm = searchInput.value.toLowerCase();
+        movies.forEach(movie => {
+            const style = movie.getAttribute('data-style').toString();
+            const shouldShow = movie.textContent.toLowerCase().includes(searchTerm) && (selected === '' || style === selected);
+            movie.style.display = shouldShow ? 'block' : 'none';
+        });
+    }
+
+    select.addEventListener('change', filterMovies);
+    searchInput.addEventListener('keyup', filterMovies);
+</script>

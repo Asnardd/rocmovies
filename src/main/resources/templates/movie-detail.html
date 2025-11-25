@@ -1,0 +1,21 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Roc movies - '+${movie.title}">Détail film</title>
+    <link rel="stylesheet" href="/css/stylesheet.css" th:href="@{/css/stylesheet.css}">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<main>
+    <h1 th:text="${movie.getTitle()}">Titre</h1>
+    <p><b>idMovie</b> : <span th:text=" ${movie.getIdMovie()}">idMovie</span></p>
+    <p><b>Réference</b> : <span th:text=" ${movie.getReference()}">Réference</span></p>
+    <p><b>Année de production</b> : <span th:text=" ${movie.getProductionYear()}">Année de production</span></p>
+    <p><b>Genre</b> : <span th:text=" ${movie.getStyle()}">Genre</span></p>
+    <a th:href="@{/}">Retour</a>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
