@@ -2,7 +2,7 @@
 package fr.asnard.rocmovies.service;
 
 import fr.asnard.rocmovies.entity.Movie;
-import fr.asnard.rocmovies.repositories.MovieRepositoryJDBC;
+import fr.asnard.rocmovies.repositories.MovieRepositoryJPA;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.util.Optional;
 public class MovieService1 implements IMovieService {
 
     @Autowired
-    private MovieRepositoryJDBC movieRepository;
+    private MovieRepositoryJPA movieRepository;
 
 
     public MovieService1() {
@@ -28,7 +28,7 @@ public class MovieService1 implements IMovieService {
     }
 
     @Override
-    public Optional<Movie> getMovieById(int idMovie) {
+    public Optional<Movie> getMovieById(Long idMovie) {
         return movieRepository.findById(idMovie);
     }
 
@@ -41,13 +41,18 @@ public class MovieService1 implements IMovieService {
 
     @Override
     public void addMovie(Movie movie) {
-        if (movie.getIdMovie() == 0) {
-            int nextId = movieRepository.findAll().stream()
-                    .mapToInt(Movie::getIdMovie)
+        if (movie.getId() == 0) {
+            Long nextId = movieRepository.findAll().stream()
+                    .mapToLong(Movie::getId)
                     .max()
                     .orElse(0) + 1;
-            movie.setIdMovie(nextId);
+            movie.setId(nextId);
         }
         movieRepository.save(movie);
+    }
+
+    @Override
+    public void deleteMovie(Movie movie) {
+        movieRepository.delete(movie);
     }
 }

@@ -1,14 +1,16 @@
 package fr.asnard.rocmovies.entity;
 
 public enum MovieStyles {
-    SF,
-    DRAME,
-    THRILLER,
     ACTION,
-    HORROR,
-    FANTASY,
     COMEDY,
+    DRAMA,
+    SF,
+    HORROR,
+    DOCUMENTARY,
     ROMANCE,
-    HISTORY,
-
+    THRILLER,
+    FANTASY,
+    CRIME,
+    ANIMATION,
+    MYSTERY,
 }

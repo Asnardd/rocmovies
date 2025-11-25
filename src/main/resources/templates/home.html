@@ -19,7 +19,7 @@
             <option th:each="style : ${styles}" th:value="${style}" th:text="${#strings.capitalize(#strings.toLowerCase(style))}"></option>
         </select>
     </label>
-    <button id="create-movie" style="position: absolute;right: 0;margin-right: 20px">Créer un film</button>
+<!--    <button id="create-movie" style="position: absolute;right: 0;margin-right: 20px">Créer un film</button>-->
 </section>
 
 <main class="movie-grid">
@@ -27,8 +27,8 @@
         <h2 th:text="${movie.getTitle()}">Titre</h2>
         <p th:text="${movie.getReference()}">Reference</p>
         <p th:text="${movie.getProductionYear()}">Année</p>
-        <p th:text="${#strings.capitalize(#strings.toLowerCase(movie.getStyle()))}">Genre</p>
-        <a th:href="@{/{id}(id=${movie.getIdMovie()})}" target="_blank">Voir les détails</a>
+        <p th:text="${#strings.capitalize(#strings.toLowerCase(movie.getStyle().getName()))}">Genre</p>
+        <a th:href="@{/{id}(id=${movie.getId()})}" target="_blank">Voir les détails</a>
     </div>
 </main>
 

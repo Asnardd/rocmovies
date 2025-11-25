@@ -9,10 +9,16 @@
 
 <main>
     <h1 th:text="${movie.getTitle()}">Titre</h1>
-    <p><b>idMovie</b> : <span th:text=" ${movie.getIdMovie()}">idMovie</span></p>
+    <p><b>ID</b> : <span th:text=" ${movie.getId()}">idMovie</span></p>
     <p><b>Réference</b> : <span th:text=" ${movie.getReference()}">Réference</span></p>
     <p><b>Année de production</b> : <span th:text=" ${movie.getProductionYear()}">Année de production</span></p>
-    <p><b>Genre</b> : <span th:text=" ${movie.getStyle()}">Genre</span></p>
+    <p><b>Genre</b> : <span th:text=" ${movie.getStyle().getName()}">Genre</span></p>
+    <p><b>Producteur</b> : <span th:text=" ${movie.getProductor().getName()}">Producteur</span></p>
+    <p><b>Acteurs :</b></p>
+    <ul>
+        <li th:each="actor : ${movie.getActors()}" th:text="${actor.getFirstname()} + ' ' + ${actor.getLastname()}"></li>
+    </ul>
+    <br>
     <a th:href="@{/}">Retour</a>
 </main>
 

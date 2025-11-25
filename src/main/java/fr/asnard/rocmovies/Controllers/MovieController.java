@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -28,7 +29,7 @@ public class MovieController {
      * @return Film correspondant à l'identifiant
      */
     @GetMapping("/{idMovie}")
-    public Optional<Movie> movie(@PathVariable Integer idMovie){
+    public Optional<Movie> movie(@PathVariable Long idMovie){
         Optional<Movie> movie = movieService.getMovieById(idMovie);
         if (movie.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found");
@@ -49,7 +50,7 @@ public class MovieController {
             try {
                 MovieStyles style = MovieStyles.valueOf(styleParam);
                 return movieService.getListMovies().stream()
-                        .filter(movie -> movie.getStyle() == style)
+                        .filter(movie -> Objects.equals(movie.getStyle().getName(), style.name()))
                         .toList();
             } catch (IllegalArgumentException e) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This style doesn't exist");
@@ -73,6 +74,16 @@ public class MovieController {
         catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid movie data");
         }
+    }
+
+    @DeleteMapping("/{idMovie}")
+    public boolean deleteMovie(@PathVariable Long idMovie) {
+        Optional<Movie> movie = movieService.getMovieById(idMovie);
+        if (movie.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found");
+        }
+        movieService.deleteMovie(movie.get());
+        return true;
     }
 
 }

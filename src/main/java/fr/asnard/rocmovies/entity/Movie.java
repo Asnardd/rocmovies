@@ -1,44 +1,77 @@
 package fr.asnard.rocmovies.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.annotation.processing.Generated;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "movies")
 public class Movie {
 
-    public Movie(int idMovie, String title, MovieStyles style, int productionYear, String reference) {
-        this.id = idMovie;
-        this.title = title;
-        this.style = style;
-        this.productionYear = productionYear;
-        this.reference = reference;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "movieId")
-    @NotNull(message = "idMovie cannot be null")
     private Long id;
 
     @NotBlank(message = "Title cannot be blank")
     @Size(max = 100, message = "Title must be at most 100 characters long")
     private String title;
 
-    @NotNull(message = "Style cannot be null")
-    @Valid
-    private MovieStyles style;
+    @ManyToOne
+    @JoinColumn(name = "style_id", nullable = false)
+    private Style style;
 
     @NotNull(message = "Production year cannot be null")
     @Max(value = 2025, message = "Production year cannot be in the future")
+    @Column(name = "production_year")
     private Integer productionYear;
 
     @NotNull(message = "reference cannot be null")
     @Pattern(regexp = "^[A-Z]{2,3}-\\d{6}$", message = "Reference must match XX-###### or XXX-######")
     private String reference;
+
+    @ManyToOne
+    @JoinColumn(name = "productor_id", nullable = false)
+    private Productor productor;
+
+    @ManyToMany
+    @JoinTable(
+            name = "roles",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "actor_id")
+    )
+    private Set<Actor> actors = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "borrows",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id")
+    )
+    @JsonIgnore
+    private Set<Customer> borrowers = new HashSet<>();
+
+    public Set<Customer> getBorrowers() {
+        return borrowers;
+    }
+
+    public void setBorrowers(Set<Customer> borrowers) {
+        this.borrowers = borrowers;
+    }
+
+    public Set<Actor> getActors() {
+        return actors;
+    }
+
+    public void setActors(Set<Actor> actors) {
+        this.actors = actors;
+    }
 
     public String getTitle() {
         return title;
@@ -48,11 +81,11 @@ public class Movie {
         this.title = title;
     }
 
-    public MovieStyles getStyle() {
+    public Style getStyle() {
         return style;
     }
 
-    public void setStyle(MovieStyles style) {
+    public void setStyle(Style style) {
         this.style = style;
     }
 
@@ -64,19 +97,31 @@ public class Movie {
         this.productionYear = productionYear;
     }
 
-    public int getIdMovie() {
-        return idMovie;
-    }
-
-    public void setIdMovie(int idMovie) {
-        this.idMovie = idMovie;
-    }
-
     public String getReference() {
         return reference;
     }
 
     public void setReference(String reference) {
         this.reference = reference;
+    }
+
+    public Productor getProductor() {
+        return productor;
+    }
+
+    public void setProductor(Productor productor) {
+        this.productor = productor;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setProductionYear(Integer productionYear) {
+        this.productionYear = productionYear;
     }
 }

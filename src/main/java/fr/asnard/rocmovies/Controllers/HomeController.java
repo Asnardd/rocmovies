@@ -26,7 +26,7 @@ public class HomeController {
     }
 
     @RequestMapping(value = {"{id}"})
-    public String movieDetails(Model model, @PathVariable int id)
+    public String movieDetails(Model model, @PathVariable Long id)
     {
         Movie movie = movieService.getMovieById(id).orElse(null);
         model.addAttribute("movie", movie);

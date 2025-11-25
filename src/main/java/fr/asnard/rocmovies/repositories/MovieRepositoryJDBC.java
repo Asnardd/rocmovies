@@ -50,13 +50,13 @@ public class MovieRepositoryJDBC {
         try {
             PreparedStatement preparedStatement = this.connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, movie.getTitle());
-            preparedStatement.setString(2, movie.getStyle().name());
+            preparedStatement.setString(2, movie.getStyle().getName());
             preparedStatement.setInt(3, movie.getProductionYear());
             preparedStatement.setString(4, movie.getReference());
             preparedStatement.executeUpdate();
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                movie.setIdMovie(generatedKeys.getInt(1));
+                movie.setId(generatedKeys.getLong(1));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -67,11 +67,11 @@ public class MovieRepositoryJDBC {
         List<Movie> movies = new ArrayList<>();
         while (resultSet.next()) {
             Movie movie = new Movie(
-                    resultSet.getInt("idMovie"),
-                    resultSet.getString("title"),
-                    MovieStyles.valueOf(resultSet.getString("style")),
-                    resultSet.getInt("productionYear"),
-                    resultSet.getString("reference")
+//                    resultSet.getLong("idMovie"),
+//                    resultSet.getString("title"),
+//                    MovieStyles.valueOf(resultSet.getString("style")),
+//                    resultSet.getInt("productionYear"),
+//                    resultSet.getString("reference")
             );
             movies.add(movie);
         }

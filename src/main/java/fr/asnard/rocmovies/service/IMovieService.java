@@ -11,9 +11,11 @@ public interface IMovieService {
 
     List<Movie> getListMovies();
 
-    Optional<Movie> getMovieById(int idMovie);
+    Optional<Movie> getMovieById(Long idMovie);
 
     List<Movie> getMoviesBetween(int startYear, int endYear);
 
     void addMovie(Movie movie);
+
+    void deleteMovie(Movie movie);
 }
