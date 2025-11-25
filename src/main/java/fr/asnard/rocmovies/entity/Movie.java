@@ -8,7 +8,9 @@ import jakarta.validation.constraints.*;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.annotation.processing.Generated;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,13 +42,8 @@ public class Movie {
     @JoinColumn(name = "productor_id", nullable = false)
     private Productor productor;
 
-    @ManyToMany
-    @JoinTable(
-            name = "roles",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "actor_id")
-    )
-    private Set<Actor> actors = new HashSet<>();
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Role> roles = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -63,14 +60,6 @@ public class Movie {
 
     public void setBorrowers(Set<Customer> borrowers) {
         this.borrowers = borrowers;
-    }
-
-    public Set<Actor> getActors() {
-        return actors;
-    }
-
-    public void setActors(Set<Actor> actors) {
-        this.actors = actors;
     }
 
     public String getTitle() {
@@ -123,5 +112,13 @@ public class Movie {
 
     public void setProductionYear(Integer productionYear) {
         this.productionYear = productionYear;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

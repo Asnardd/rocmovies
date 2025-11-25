@@ -8,18 +8,24 @@
 <div th:replace="fragments/header :: header"></div>
 
 <main>
-    <h1 th:text="${movie.getTitle()}">Titre</h1>
-    <p><b>ID</b> : <span th:text=" ${movie.getId()}">idMovie</span></p>
-    <p><b>Réference</b> : <span th:text=" ${movie.getReference()}">Réference</span></p>
-    <p><b>Année de production</b> : <span th:text=" ${movie.getProductionYear()}">Année de production</span></p>
-    <p><b>Genre</b> : <span th:text=" ${movie.getStyle().getName()}">Genre</span></p>
-    <p><b>Producteur</b> : <span th:text=" ${movie.getProductor().getName()}">Producteur</span></p>
-    <p><b>Acteurs :</b></p>
-    <ul>
-        <li th:each="actor : ${movie.getActors()}" th:text="${actor.getFirstname()} + ' ' + ${actor.getLastname()}"></li>
-    </ul>
     <br>
     <a th:href="@{/}">Retour</a>
+    <br>
+    <div style="margin-left: 2rem">
+        <h1 th:text="${movie.getTitle()}">Titre</h1>
+        <p><b>ID</b> : <span th:text=" ${movie.getId()}">idMovie</span></p>
+        <p><b>Réference</b> : <span th:text=" ${movie.getReference()}">Réference</span></p>
+        <p><b>Année de production</b> : <span th:text=" ${movie.getProductionYear()}">Année de production</span></p>
+        <p><b>Genre</b> : <span th:text=" ${movie.getStyle().getName()}">Genre</span></p>
+        <p><b>Producteur</b> : <span th:text=" ${movie.getProductor().getName()}">Producteur</span></p>
+        <p><b>Roles :</b></p>
+        <ul>
+            <li th:each="role : ${movie.getRoles()}"
+                th:text="${role.getName() + ' - Joué par : ' + role.getActor().getFirstname() + ' ' + role.getActor().getLastname()}">
+            </li>
+        </ul>
+        <p><b>Nombre de fois emprunté</b> : <span th:text="${movie.getBorrowers().stream().count()}">BorrowCount</span></p>
+    </div>
 </main>
 
 <div th:replace="fragments/footer :: footer"></div>

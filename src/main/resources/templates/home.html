@@ -28,7 +28,7 @@
         <p th:text="${movie.getReference()}">Reference</p>
         <p th:text="${movie.getProductionYear()}">Année</p>
         <p th:text="${#strings.capitalize(#strings.toLowerCase(movie.getStyle().getName()))}">Genre</p>
-        <a th:href="@{/{id}(id=${movie.getId()})}" target="_blank">Voir les détails</a>
+        <a th:href="@{/{id}(id=${movie.getId()})}">Voir les détails</a>
     </div>
 </main>
 
