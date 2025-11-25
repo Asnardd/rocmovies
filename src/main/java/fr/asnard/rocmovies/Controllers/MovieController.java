@@ -68,8 +68,8 @@ public class MovieController {
     @ResponseStatus(HttpStatus.CREATED)
     public Movie addMovie(@RequestBody @Valid Movie movie) {
         try {
-            movieService.addMovie(movie);
-            return movie;
+            Movie result = movieService.addMovie(movie);
+            return movieService.getMovieById(result.getId()).get();
         }
         catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid movie data");
@@ -77,6 +77,7 @@ public class MovieController {
     }
 
     @DeleteMapping("/{idMovie}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public boolean deleteMovie(@PathVariable Long idMovie) {
         Optional<Movie> movie = movieService.getMovieById(idMovie);
         if (movie.isEmpty()){

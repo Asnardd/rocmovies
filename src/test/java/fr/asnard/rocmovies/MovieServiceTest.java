@@ -1,88 +1,83 @@
 package fr.asnard.rocmovies;
 
 import fr.asnard.rocmovies.entity.Movie;
-import fr.asnard.rocmovies.entity.MovieStyles;
-import fr.asnard.rocmovies.repositories.MovieRepository;
-import fr.asnard.rocmovies.service.MovieService1;
+import fr.asnard.rocmovies.repositories.MovieRepositoryJPA;
+import fr.asnard.rocmovies.service.MovieService2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-public class MovieServiceTest {
+class MovieServiceTest {
 
     @Mock
-    private MovieRepository movieRepository;
+    private MovieRepositoryJPA movieRepository;
 
     @InjectMocks
-    private MovieService1 movieService1;
+    private MovieService2 movieService2;
+
+    private Movie movie1;
+    private Movie movie2;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        movie1 = new Movie();
+        movie1.setId(1L);
+        movie1.setTitle("Inception");
+        movie1.setProductionYear(2010);
+
+        movie2 = new Movie();
+        movie2.setId(2L);
+        movie2.setTitle("The Matrix");
+        movie2.setProductionYear(1999);
     }
 
-//    @Test
-//    void testGetListMovies() {
-//        when(movieRepository.findAll()).thenReturn(
-//                List.of(
-////                        new Movie(1, "Cloud Atlas", MovieStyles.SF, 2012, "FR-889112"),
-////                        new Movie(2, "Shutter Island", MovieStyles.THRILLER, 2010, "USA-003645"),
-////                        new Movie(3, "Interstellar", MovieStyles.SF, 2018, "GB-793222"),
-////                        new Movie(4, "Pulp Fiction", MovieStyles.ACTION, 2001, "USA-778945"),
-////                        new Movie(5, "Mulholland Drive", MovieStyles.THRILLER, 2001, "FR-445122")
-//                        )
-//        );
-//
-//        var movies = movieService1.getListMovies();
-//
-//        assertNotNull(movies);
-//        assertEquals(5, movies.size());
-//    }
+    @Test
+    void testGetListMovies() {
+        when(movieRepository.findAll()).thenReturn(Arrays.asList(movie1, movie2));
 
-//    @Test
-//    void testFindMovieById() {
-//        Movie mockMovie = new Movie(1, "Inception", MovieStyles.SF,2010, "GB-123456");
-//        when(movieRepository.findById(1)).thenReturn(Optional.of(mockMovie));
-//
-//        Movie result = movieService1.getMovieById(1).orElse(null);
-//
-//        assertNotNull(result);
-//        assertEquals("Inception", result.getTitle());
-//    }
+        List<Movie> movies = movieService2.getListMovies();
+        assertEquals(2, movies.size());
+        verify(movieRepository, times(1)).findAll();
+    }
 
-//    @Test
-//    void testGetMoviesBetween() {
-//        when(movieRepository.findAll()).thenReturn(
-//                List.of(
-//                        new Movie(1, "Movie A", MovieStyles.SF, 2000, "FR-000001"),
-//                        new Movie(2, "Movie B", MovieStyles.THRILLER, 2005, "USA-000002"),
-//                        new Movie(3, "Movie C", MovieStyles.ACTION, 2010, "GB-000003"),
-//                        new Movie(4, "Movie D", MovieStyles.DRAME, 2015, "FR-000004")
-//                )
-//        );
-//
-//        var movies = movieService1.getMoviesBetween(2003, 2012);
-//
-//        assertNotNull(movies);
-//        assertEquals(2, movies.size());
-//    }
+    @Test
+    void testGetMovieById_Found() {
+        when(movieRepository.findById(1L)).thenReturn(Optional.of(movie1));
 
-//    @Test
-//    void testAddMovie() {
-//        Movie newMovie = new Movie(6, "The Matrix", MovieStyles.SF, 1999, "US-654321");
-//
-//        movieService1.addMovie(newMovie);
-//    }
+        Optional<Movie> result = movieService2.getMovieById(1L);
+        assertTrue(result.isPresent());
+        assertEquals("Inception", result.get().getTitle());
+        verify(movieRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testGetMoviesBetween() {
+        when(movieRepository.findAll()).thenReturn(Arrays.asList(movie1, movie2));
+
+        List<Movie> movies = movieService2.getMoviesBetween(2000, 2020);
+        assertEquals(1, movies.size());
+        assertEquals("Inception", movies.get(0).getTitle());
+    }
+
+    @Test
+    void testAddMovie() {
+        movieService2.addMovie(movie1);
+        verify(movieRepository, times(1)).save(movie1);
+    }
+
+    @Test
+    void testDeleteMovie() {
+        movieService2.deleteMovie(movie1);
+        verify(movieRepository, times(1)).delete(movie1);
+    }
 }

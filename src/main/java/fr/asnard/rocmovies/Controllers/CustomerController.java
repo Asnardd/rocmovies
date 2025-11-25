@@ -1,6 +1,7 @@
 package fr.asnard.rocmovies.Controllers;
 
 import fr.asnard.rocmovies.entity.Borrow;
+import fr.asnard.rocmovies.entity.Customer;
 import fr.asnard.rocmovies.entity.Movie;
 import fr.asnard.rocmovies.service.BorrowService;
 import fr.asnard.rocmovies.service.CustomerService;
@@ -10,12 +11,52 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("customers")
 public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
+
+    @GetMapping("/")
+    public List<Customer> getAllCustomers() {
+        return customerService.getAllCustomers();
+    }
+
+    @GetMapping("/{idCustomer}")
+    public Customer getCustomerById(@PathVariable Long idCustomer) {
+        try {
+            return customerService.getCustomerById(idCustomer);
+        }
+        catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
+        }
+    }
+
+    @PostMapping("/")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Customer createCustomer(@RequestBody @Valid Customer customer) {
+        try {
+            return customerService.createCustomer(customer);
+        }
+        catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
+        }
+    }
+
+    @DeleteMapping("/{idCustomer}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public boolean deleteCustomer(@PathVariable Long idCustomer) {
+        try {
+            customerService.deleteCustomer(idCustomer);
+            return true;
+        }
+        catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
+        }
+    }
 
     @GetMapping("/{idCustomer}/borrows")
     public Object getBorrowsByCustomerId(@PathVariable Long idCustomer) {

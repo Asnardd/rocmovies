@@ -15,7 +15,7 @@ public interface IMovieService {
 
     List<Movie> getMoviesBetween(int startYear, int endYear);
 
-    void addMovie(Movie movie);
+    Movie addMovie(Movie movie);
 
     void deleteMovie(Movie movie);
 }

@@ -28,7 +28,23 @@ public class CustomerService {
     private MovieRepositoryJPA movieRepository;
 
     public CustomerService() {
-        System.out.println("Création du service MovieService2");
+        System.out.println("Création du service CustomerService");
+    }
+
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
+
+    public Customer getCustomerById(Long id) {
+        return customerRepository.findById(id).get();
+    }
+
+    public Customer createCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
+
+    public void deleteCustomer(Long id) {
+        customerRepository.deleteById(id);
     }
 
     public Borrow borrowMovie(Long idMovie, Long idCustomer) {
@@ -43,7 +59,8 @@ public class CustomerService {
         return borrow;
     }
 
-    public List<Movie> getListBorrowsById(Long idCustomer) {
-        return customerRepository.findById(idCustomer).get().getBorrowedMovies().stream().toList();
+    public List<Borrow> getListBorrowsById(Long idCustomer) {
+//        return customerRepository.findById(idCustomer).get().getBorrowedMovies().stream().toList();
+        return borrowRepository.findByCustomer(customerRepository.findById(idCustomer).get()).stream().toList();
     }
 }

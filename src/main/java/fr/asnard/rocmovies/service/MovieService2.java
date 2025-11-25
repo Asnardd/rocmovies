@@ -39,7 +39,7 @@ public class MovieService2 implements IMovieService {
     }
 
     @Override
-    public void addMovie(Movie movie) {
+    public Movie addMovie(Movie movie) {
 //        if (movie.getId() == 0L) {
 //            Long nextId = movieRepository.findAll().stream()
 //                    .mapToLong(Movie::getId)
@@ -47,7 +47,7 @@ public class MovieService2 implements IMovieService {
 //                    .orElse(0) + 1;
 //            movie.setId(nextId);
 //        }
-        movieRepository.save(movie);
+        return movieRepository.save(movie);
     }
 
     @Override

@@ -23,7 +23,7 @@
 </section>
 
 <main class="movie-grid">
-    <div class="movie" th:each="movie : ${movies}" th:attr="data-style=${movie.getStyle()}">
+    <div class="movie" th:each="movie : ${movies}" th:attr="data-style=${movie.getStyle().getName()}">
         <h2 th:text="${movie.getTitle()}">Titre</h2>
         <p th:text="${movie.getReference()}">Reference</p>
         <p th:text="${movie.getProductionYear()}">Année</p>
@@ -61,9 +61,9 @@
     // Modal logics
     const modal = document.getElementById("movie-modal");
 
-    document.getElementById("create-movie").onclick = function() {
-        modal.style.display = "block";
-    }
+    // document.getElementById("create-movie").onclick = function() {
+    //     modal.style.display = "block";
+    // }
 
     document.getElementsByClassName("close")[0].onclick = function() {
         modal.style.display = "none";
@@ -118,6 +118,7 @@
     function filterMovies() {
         const selected = select.value;
         const searchTerm = searchInput.value.toLowerCase();
+        console.log("Filtering movies with style:", selected, "and search term:", searchTerm);
         movies.forEach(movie => {
             const style = movie.getAttribute('data-style').toString();
             const shouldShow = movie.textContent.toLowerCase().includes(searchTerm) && (selected === '' || style === selected);

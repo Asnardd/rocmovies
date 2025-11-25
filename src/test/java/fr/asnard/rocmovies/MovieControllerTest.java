@@ -4,75 +4,170 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.asnard.rocmovies.Controllers.MovieController;
 import fr.asnard.rocmovies.entity.Movie;
 import fr.asnard.rocmovies.entity.MovieStyles;
+import fr.asnard.rocmovies.repositories.StyleRepository;
 import fr.asnard.rocmovies.service.IMovieService;
-import fr.asnard.rocmovies.service.MovieService1;
-import fr.asnard.rocmovies.service.MovieService2;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(MovieController.class)
 class MovieControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean(name = "movieService2")
-    private MovieService2 movieService;
+    @Mock(name = "movieService2")
+    private IMovieService movieService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private StyleRepository styleRepository;
 
-//    @Test
-//    void testGetMovieById_Returns200AndJson() throws Exception {
-//        Movie mockMovie = new Movie(1L, "Inception", MovieStyles.SF,2010, "GB-123456");
-//        when(movieService.getMovieById(1)).thenReturn(Optional.of(mockMovie));
-//
-//        mockMvc.perform(get("/movies/1")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType("application/json"));
-//    }
+    @InjectMocks
+    private MovieController movieController;
 
-//    @Test
-//    void testGetMovieById_Returns404WhenNotFound() throws Exception {
-//        when(movieService.getMovieById(999)).thenReturn(Optional.empty());
-//
-//        mockMvc.perform(get("/movies/999"))
-//                .andExpect(status().isNotFound());
-//    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-//    @Test
-//    void testAddMovie_Returns201() throws Exception {
-//        Movie mockMovie = new Movie(1, "Inception", MovieStyles.SF, 2010, "GB-123456");
-//        when(movieService.getMovieById(1)).thenReturn(Optional.of(mockMovie));
-//
-//        mockMvc.perform(post("/movies/")
-//                .contentType("application/json")
-//                .content(objectMapper.writeValueAsString(mockMovie)))
-//                .andExpect(status().isCreated());
-//    }
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(movieController).build();
+    }
 
     @Test
-    void testAddMovie_Returns400OnInvalidInput() throws Exception {
-        String invalidJson = "{ \"title\": \"Inception\", \"style\": \"INVALID_STYLE\", \"productionYear\": 2010, \"code\": \"GB-123456\" }";
+    void testGetMovieById_Found() throws Exception {
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("Inception");
+        movie.setStyle(styleRepository.findById(1L).get());
+
+        when(movieService.getMovieById(1L)).thenReturn(Optional.of(movie));
+
+        mockMvc.perform(get("/movies/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Inception"))
+                .andExpect(jsonPath("$.style.name").value("ACTION"));
+
+        verify(movieService, times(1)).getMovieById(1L);
+    }
+
+    @Test
+    void testGetMovieById_NotFound() throws Exception {
+        when(movieService.getMovieById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/movies/1"))
+                .andExpect(status().isNotFound());
+
+        verify(movieService, times(1)).getMovieById(1L);
+    }
+
+    @Test
+    void testGetMoviesByStyle_Filtered() throws Exception {
+        Movie movie1 = new Movie();
+        movie1.setId(1L);
+        movie1.setTitle("Inception");
+        movie1.setStyle(styleRepository.findById(1L).get());
+
+        Movie movie2 = new Movie();
+        movie2.setId(2L);
+        movie2.setTitle("The Notebook");
+        movie1.setStyle(styleRepository.findById(7L).get());
+
+        List<Movie> movies = Arrays.asList(movie1, movie2);
+
+        when(movieService.getListMovies()).thenReturn(movies);
+
+        mockMvc.perform(get("/movies/").param("style", "ACTION"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("Inception"))
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void testGetMoviesByStyle_InvalidStyle() throws Exception {
+        mockMvc.perform(get("/movies/").param("style", "INVALID"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testGetMovies_NoStyle() throws Exception {
+        Movie movie1 = new Movie();
+        movie1.setId(1L);
+        movie1.setTitle("Inception");
+        movie1.setStyle(styleRepository.findById(1L).get());
+
+        Movie movie2 = new Movie();
+        movie2.setId(2L);
+        movie2.setTitle("The Notebook");
+        movie1.setStyle(styleRepository.findById(7L).get());
+
+        List<Movie> movies = Arrays.asList(movie1, movie2);
+
+        when(movieService.getListMovies()).thenReturn(movies);
+
+        mockMvc.perform(get("/movies/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void testAddMovie_Success() throws Exception {
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("Inception");
+        movie.setStyle(styleRepository.findById(1L).get());
 
         mockMvc.perform(post("/movies/")
-                .contentType("application/json")
-                .content(invalidJson))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(movie)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("Inception"));
+    }
+
+    @Test
+    void testAddMovie_InvalidData() throws Exception {
+        Movie movie = new Movie(); // no title
+
+        doThrow(new IllegalArgumentException()).when(movieService).addMovie(ArgumentMatchers.any(Movie.class));
+
+        mockMvc.perform(post("/movies/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(movie)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testDeleteMovie_Success() throws Exception {
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("Inception");
+
+        when(movieService.getMovieById(1L)).thenReturn(Optional.of(movie));
+        doNothing().when(movieService).deleteMovie(movie);
+
+        mockMvc.perform(delete("/movies/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    void testDeleteMovie_NotFound() throws Exception {
+        when(movieService.getMovieById(1L)).thenReturn(Optional.empty());
+
+        mockMvc.perform(delete("/movies/1"))
+                .andExpect(status().isNotFound());
     }
 }
