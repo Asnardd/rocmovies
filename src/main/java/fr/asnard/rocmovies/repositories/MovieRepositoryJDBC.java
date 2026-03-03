@@ -13,7 +13,7 @@ import java.util.Optional;
 public class MovieRepositoryJDBC {
     private final Connection connection;
     MovieRepositoryJDBC() throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:mysql://172.19.72.210:3306/rocmovies","bards","Pwdev!159");
+        this.connection = DriverManager.getConnection("jdbc:mysql://172.23.248.217:3306/rocmovies","bards","Pwdev!159");
     }
 
     public List<Movie> findAll() {

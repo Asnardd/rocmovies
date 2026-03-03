@@ -20,11 +20,6 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @GetMapping("/")
-    public List<Customer> getAllCustomers() {
-        return customerService.getAllCustomers();
-    }
-
     @GetMapping("/{idCustomer}")
     public Customer getCustomerById(@PathVariable Long idCustomer) {
         try {
@@ -77,5 +72,10 @@ public class CustomerController {
         catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
         }
+    }
+
+    @GetMapping("/")
+    public List<Customer> getAllCustomers() {
+        return customerService.getAllCustomers();
     }
 }

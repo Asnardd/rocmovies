@@ -5,13 +5,15 @@ server:
     port: 9090
     servlet:
         context-path: /rocmovies
+app:
+    base-url: http://localhost:${server.port}${server.servlet.context-path}
 spring:
     application:
         name: rocmovies
     datasource:
-        password: rocmovies
-        username: rocmovies
-        url: jdbc:mysql://172.19.72.210:3306/rocmovies
+        password: Pwdev!159
+        username: bards
+        url: jdbc:mysql://172.23.248.217:3306/rocmovies
     jpa:
         hibernate:
             ddl-auto: create
