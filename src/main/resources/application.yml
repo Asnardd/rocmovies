@@ -1,0 +1,58 @@
+server:
+    error:
+        include-binding-errors: always
+        include-message: always
+    port: 9090
+    servlet:
+        context-path: /rocmovies
+spring:
+    application:
+        name: rocmovies
+    datasource:
+        password: rocmovies
+        username: rocmovies
+        url: jdbc:mysql://172.19.72.210:3306/rocmovies
+    jpa:
+        hibernate:
+            ddl-auto: create
+        properties:
+            hibernate:
+                generate_statistics: true
+#    sql:
+#        init:
+#            data-locations: classpath:data.sql
+#            mode: always
+
+management:
+    info:
+        env:
+            enabled: true
+        git:
+            enabled: true
+            mode: full
+        java:
+            enabled: true
+        build:
+            enabled: true
+        os:
+            enabled: true
+    metrics:
+      data:
+        repository:
+          autotime:
+              enabled: true
+      web:
+        server:
+          request:
+            autotime:
+              enabled: true
+    endpoint:
+        health:
+            show-details: always
+        shutdown:
+          enabled: true
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+            base-path: /actuator
