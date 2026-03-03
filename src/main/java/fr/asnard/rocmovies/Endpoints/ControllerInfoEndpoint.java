@@ -18,7 +18,6 @@ import java.util.*;
 public class ControllerInfoEndpoint {
 
     private final RequestMappingHandlerMapping handlerMapping;
-    Map<String, List<String>> controllerGetRoutes = new HashMap<>();
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${app.base-url}")
     private String baseUrl;
@@ -29,6 +28,7 @@ public class ControllerInfoEndpoint {
 
     @ReadOperation
     public Map<String, Object> controllerInfo() {
+        Map<String, List<String>> controllerGetRoutes = new HashMap<>();
 
         handlerMapping.getHandlerMethods().forEach((mappingInfo, handlerMethod) -> {
             String controllerName = handlerMethod.getBeanType().getSimpleName();
@@ -47,8 +47,11 @@ public class ControllerInfoEndpoint {
         int totalGetRoutes = 0;
 
         for (Map.Entry<String, List<String>> entry : controllerGetRoutes.entrySet()) {
-            String mainRoute = entry.getValue().getFirst();
-            String status = probeRoute(mainRoute);
+            String mainRoute = entry.getValue().stream()
+                    .filter(r -> !r.contains("{"))
+                    .findFirst()
+                    .orElse(null);
+            String status = mainRoute != null ? probeRoute(mainRoute) : "SKIPPED";
 
             Map<String, Object> info = new HashMap<>();
             info.put("controller", entry.getKey());
